@@ -2,21 +2,24 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-
-    public float moveSpeed;
+    public float moveSpeed = 5f;
     public Rigidbody2D rb;
     public Animator anim;
 
     private Vector2 moveDirection;
     private Vector2 lastMoveDirection;
 
+    void Awake()
+    {
+        if (rb == null) rb = GetComponent<Rigidbody2D>();
+        if (anim == null) anim = GetComponent<Animator>();
+    }
 
     void Update()
     {
         ProcessInputs();
         Animate();
     }
-
 
     void FixedUpdate()
     {
@@ -28,18 +31,19 @@ public class PlayerMovement : MonoBehaviour
         float moveX = Input.GetAxisRaw("Horizontal");
         float moveY = Input.GetAxisRaw("Vertical");
 
-        if (moveX == 0 && moveY == 0 && moveDirection.x != 0 || moveDirection.y != 0)
+        Vector2 input = new Vector2(moveX, moveY);
+
+        if (input != Vector2.zero)
         {
-            lastMoveDirection = moveDirection;
+            lastMoveDirection = input.normalized;
         }
 
-
-        moveDirection = new Vector2(moveX, moveY).normalized;
+        moveDirection = input.normalized;
     }
 
     void Move()
     {
-        rb.velocity = new Vector2(moveDirection.x * moveSpeed, moveDirection.y * moveSpeed);
+        rb.linearVelocity = moveDirection * moveSpeed;
     }
 
     void Animate()
